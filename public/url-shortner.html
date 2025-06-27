@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>URL Shortener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-gradient-to-br from-blue-400 to-cyan-500 min-h-screen flex justify-center items-center p-8"
+  >
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full h-full">
+      <h1 class="text-2xl font-bold text-center text-blue-600 mb-6">
+        URL Shortener
+      </h1>
+
+      <form id="url-form" class="space-y-4">
+        <div class="flex flex-col">
+          <label for="original-url" class="font-semibold text-gray-700"
+            >Original URL</label
+          >
+          <input
+            type="text"
+            id="original-url"
+            class="border border-gray-300 p-2 rounded-md"
+            placeholder="Enter the URL to shorten"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+        >
+          Shorten URL
+        </button>
+      </form>
+
+      <div id="error-message" class="text-red-600 mt-4 hidden"></div>
+
+      <table
+        id="result-table"
+        class="w-full mt-6 table-auto border-collapse"
+      >
+        <thead>
+          <tr>
+            <th class="border p-2 text-left bg-gray-100">Original URL</th>
+            <th class="border p-2 text-left bg-gray-100">Shortened URL</th>
+          </tr>
+        </thead>
+        {{data}}
+        <tbody id="result-body"></tbody>
+      </table>
+    </div>
+
+    <script>
+      const form = document.getElementById("url-form");
+      const originalUrlInput = document.getElementById("original-url");
+      const errorMessageDiv = document.getElementById("error-message");
+      const resultTable = document.getElementById("result-table");
+      const resultBody = document.getElementById("result-body");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const originalUrl = originalUrlInput.value.trim();
+
+        if (!originalUrl) {
+          showError("Please enter a valid URL.");
+          return;
+        }
+
+        hideError();
+        try {
+          const params = new URLSearchParams();
+          params.append("url", originalUrl);
+
+          const response = await fetch("http://localhost:8080/url-shortener", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            credentials: "include",
+            body: "vardaan " + params.toString(),
+          });
+
+          const data = await response.text();
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td class="border p-2">${originalUrl}</td>
+            <td class="border p-2">
+              <a href="${data}" class="text-blue-600 hover:underline" target="_blank">${data}</a>
+            </td>
+          `;
+          resultBody.appendChild(row);
+
+          resultTable.classList.remove("hidden");
+        } catch (error) {
+          console.error("Error:", error);
+          showError("An error occurred while shortening the URL.");
+        }
+      });
+
+      function showError(message) {
+        errorMessageDiv.textContent = message;
+        errorMessageDiv.classList.remove("hidden");
+        resultTable.classList.add("hidden");
+      }
+
+      function hideError() {
+        errorMessageDiv.classList.add("hidden");
+      }
+    </script>
+  </body>
+</html>
