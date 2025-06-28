@@ -70,7 +70,6 @@ sudo apt install build-essential cmake libssl-dev
 - **Register**: `http://localhost:8080/register`
 - **Login**: `http://localhost:8080/login`
 - **Shorten URLs**: `http://localhost:8080/url-shortener`
-- **Access short URLs**: `http://localhost:8080/vardaan.ly/{hash}`
 
 ## API Endpoints
 
